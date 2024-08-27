@@ -41,27 +41,40 @@ async function run() {
     })
     app.get('/manage-camps', async (req, res) => {
       const addedBy = req.query.addedBy;
-      const query = { addedBy : addedBy }
+      const query = { addedBy: addedBy }
       const result = await campCollection.find(query).toArray();
       res.send(result);
     })
-    app.get('/manage-camp/:id', async(req, res)=> {
+    app.get('/manage-camp/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await campCollection.findOne(query);
       res.send(result);
     })
-    app.delete('/manage-camps/:id', async(req, res)=> {
+    app.delete('/manage-camps/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await campCollection.deleteOne(query);
       res.send(result);
     })
-    app.patch('/update-camp/:id', async(req, res)=> {
+    app.put('/update-camp/:id', async (req, res) => {
       const campInfo = req.body;
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)};
-      
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          campName:campInfo.campName,
+          campFees:campInfo.campFees,
+          location:campInfo.location,
+          professionalName:campInfo.professionalName,
+          date:campInfo.date,
+          time:campInfo.time,
+          details:campInfo.details,
+          image_url: campInfo.image_url,
+        }
+      }
+      const result = await campCollection.updateOne(filter, updateDoc)
+      res.send(result);
     })
 
 
