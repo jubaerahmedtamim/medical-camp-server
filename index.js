@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 
@@ -29,6 +30,13 @@ async function run() {
 
     const campCollection = client.db("campDocDB").collection("camp");
     const usersCollection = client.db("campDocDB").collection("users");
+
+    // jwt related apis
+    app.post('/jwt', async(req, res)=> {
+      const user= req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'})
+      res.send({token});
+    })
 
     // api for usersCollection.
     app.get('/users', async(req, res)=> {
