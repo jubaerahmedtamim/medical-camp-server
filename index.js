@@ -28,7 +28,36 @@ async function run() {
     await client.connect();
 
     const campCollection = client.db("campDocDB").collection("camp");
+    const usersCollection = client.db("campDocDB").collection("users");
 
+    // api for usersCollection.
+    app.get('/users', async(req, res)=> {
+      const result = await usersCollection.find().toArray();
+      res.send(result)
+    })
+    app.post('/users', async(req, res)=> {
+      const user = req.body;
+      const query = {email: user.email}
+      const existingUser = await usersCollection.findOne(query);
+      if(existingUser){
+        return res.send({message: 'user already exists', insertedId: null})
+      }
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    })
+
+    app.patch('/users/admin/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id)}
+      const updateDoc = {
+        $set: {
+          role: 'admin'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+    
     // api for campCollection
     app.post('/camp', async (req, res) => {
       const campInfo = req.body;
