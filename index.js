@@ -53,13 +53,24 @@ async function run() {
       })
     }
 
+    const verifyAdmin = async(req, res, next) => {
+      const email = req.decoded.email;
+      const query = {email: email}
+      const user = await usersCollection.findOne(query);
+      const isAdmin = user?.role === 'admin';
+      if(!isAdmin){
+        return res.status(403).send({ message: 'forbidden access' })
+      }
+      next()
+    }
+
     // api for usersCollection.
-    app.get('/users', verifyToken, async (req, res) => {
+    app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
 
-    app.get('/users/admin/:email',verifyToken, async (req, res) => {
+    app.get('/users/admin/:email',verifyToken,verifyAdmin, async (req, res) => {
       const email = req.params.email;
       console.log(req.decoded.email);
       if (email !== req.decoded?.email) {
@@ -85,7 +96,7 @@ async function run() {
       res.send(result);
     })
 
-    app.patch('/users/admin/:id', verifyToken,  async (req, res) => {
+    app.patch('/users/admin/:id', verifyToken,verifyAdmin,  async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const updateDoc = {
@@ -98,7 +109,7 @@ async function run() {
     })
 
     // api for campCollection
-    app.post('/camp', verifyToken, async (req, res) => {
+    app.post('/camp', verifyToken,verifyAdmin, async (req, res) => {
       const campInfo = req.body;
       const result = await campCollection.insertOne(campInfo);
       res.send(result)
@@ -107,25 +118,25 @@ async function run() {
       const result = await campCollection.find().toArray();
       res.send(result)
     })
-    app.get('/manage-camps', verifyToken, async (req, res) => {
+    app.get('/manage-camps', verifyToken,verifyAdmin, async (req, res) => {
       const addedBy = req.query.addedBy;
       const query = { addedBy: addedBy }
       const result = await campCollection.find(query).toArray();
       res.send(result);
     })
-    app.get('/manage-camp/:id',verifyToken, async (req, res) => {
+    app.get('/manage-camp/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await campCollection.findOne(query);
       res.send(result);
     })
-    app.delete('/manage-camps/:id', verifyToken, async (req, res) => {
+    app.delete('/manage-camps/:id', verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await campCollection.deleteOne(query);
       res.send(result);
     })
-    app.put('/update-camp/:id', verifyToken, async (req, res) => {
+    app.put('/update-camp/:id', verifyToken,verifyAdmin, async (req, res) => {
       const campInfo = req.body;
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
