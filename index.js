@@ -30,6 +30,7 @@ async function run() {
 
     const campCollection = client.db("campDocDB").collection("camp");
     const usersCollection = client.db("campDocDB").collection("users");
+    const registeredCampsCollection = client.db("campDocDB").collection("registeredCamps");
 
     // jwt related apis
     app.post('/jwt', async (req, res) => {
@@ -63,6 +64,13 @@ async function run() {
       }
       next()
     }
+
+    // api for registeredCampsCollection
+    app.post('/registered-camps', async(req, res)=> {
+      const registerCamp = req.body;
+      const result = await registeredCampsCollection.insertOne(registerCamp);
+      res.send(result);
+    })
 
     // api for usersCollection.
     app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
