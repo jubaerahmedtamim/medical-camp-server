@@ -70,7 +70,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/users/admin/:email',verifyToken,verifyAdmin, async (req, res) => {
+    app.get('/users/admin/:email',verifyToken, async (req, res) => {
       const email = req.params.email;
       console.log(req.decoded.email);
       if (email !== req.decoded?.email) {
@@ -124,7 +124,8 @@ async function run() {
       const result = await campCollection.find(query).toArray();
       res.send(result);
     })
-    app.get('/manage-camp/:id',verifyToken,verifyAdmin, async (req, res) => {
+    // camp-details api
+    app.get('/manage-camp/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await campCollection.findOne(query);
