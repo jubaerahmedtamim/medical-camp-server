@@ -84,6 +84,18 @@ async function run() {
       const result = await registeredCampsCollection.updateOne(filter, updateDoc);
       res.send(result)
     })
+    //update confirmation by admin
+    app.patch('/update-registered-camp-confirmation/:id', verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+            confirmation_status: 'Confirmed',
+        }
+      }
+      const result = await registeredCampsCollection.updateOne(filter, updateDoc);
+      res.send(result)
+    })
 
     app.get('/registered-camp/:id', async (req, res) => {
       const id = req.params.id;
@@ -93,7 +105,10 @@ async function run() {
     })
 
     // get all registered camps by all users
-    app.get('/registered-camps')
+    app.get('/registered-camps', verifyToken, verifyAdmin, async (req, res) => {
+      const result = await registeredCampsCollection.find().toArray();
+      res.send(result);
+    })
 
     // get specified user by email
     app.get('/registered-camps', verifyToken, async (req, res) => {
@@ -212,9 +227,16 @@ async function run() {
       })
     })
 
-    app.post('/payments', async(req, res)=> {
+    app.post('/payments', async (req, res) => {
       const payment = req.body;
       const result = await paymentsCollection.insertOne(payment);
+      res.send(result);
+    })
+
+    app.get('/payments', async (req, res) => {
+      const email = req.query.email;
+      let query = { email: email }
+      const result = await paymentsCollection.find(query).toArray();
       res.send(result);
     })
 
