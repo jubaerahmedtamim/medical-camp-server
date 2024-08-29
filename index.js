@@ -96,6 +96,12 @@ async function run() {
       const result = await registeredCampsCollection.updateOne(filter, updateDoc);
       res.send(result)
     })
+    app.delete('/delete-registered-camp/:id', verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await registeredCampsCollection.deleteOne(query);
+      res.send(result)
+    })
 
     app.get('/registered-camp/:id', async (req, res) => {
       const id = req.params.id;
