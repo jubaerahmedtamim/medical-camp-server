@@ -33,6 +33,7 @@ async function run() {
     const usersCollection = client.db("campDocDB").collection("users");
     const registeredCampsCollection = client.db("campDocDB").collection("registeredCamps");
     const paymentsCollection = client.db("campDocDB").collection("payments");
+    const feedbackCollection = client.db("campDocDB").collection("feedback");
 
     // jwt related apis
     app.post('/jwt', async (req, res) => {
@@ -96,7 +97,7 @@ async function run() {
       const result = await registeredCampsCollection.updateOne(filter, updateDoc);
       res.send(result)
     })
-    app.delete('/delete-registered-camp/:id', verifyToken, verifyAdmin, async (req, res) => {
+    app.delete('/delete-registered-camp/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await registeredCampsCollection.deleteOne(query);
@@ -117,8 +118,8 @@ async function run() {
     })
 
     // get specified user by email
-    app.get('/registered-camps', verifyToken, async (req, res) => {
-      const email = req.query.email;
+    app.get('/registered-camps/:email', verifyToken, async (req, res) => {
+      const email = req.params.email;
       const query = { email: email };
       const result = await registeredCampsCollection.find(query).toArray();
       res.send(result);
@@ -246,6 +247,17 @@ async function run() {
       res.send(result);
     })
 
+    // feedback collection
+    app.post('/feedback', verifyToken, async(req, res)=> {
+      const feedback = req.body;
+      const result = await feedbackCollection.insertOne(feedback);
+      res.send(result);
+    })
+
+    app.get('/feedback', async(req, res)=> {
+      const result = await feedbackCollection.find().toArray();
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
